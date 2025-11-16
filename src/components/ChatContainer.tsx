@@ -4,7 +4,7 @@ import { ChatInput } from "./ChatInput";
 import { useToast } from "@/hooks/use-toast";
 import { Bot } from "lucide-react";
 
-const WEBHOOK_URL = "http://localhost:5678/webhook-test/ff72a47b-a998-4866-993b-a7a8aa0cb5e9";
+const WEBHOOK_URL = "http://localhost:5678/webhook-test/ab1c96ee-0be0-4bdf-bcde-28f00d53be22";
 
 export const ChatContainer = () => {
   const [messages, setMessages] = useState<Message[]>([]);
