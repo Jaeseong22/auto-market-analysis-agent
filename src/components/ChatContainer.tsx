@@ -1,0 +1,121 @@
+import { useState, useRef, useEffect } from "react";
+import { ChatMessage, type Message } from "./ChatMessage";
+import { ChatInput } from "./ChatInput";
+import { useToast } from "@/hooks/use-toast";
+import { Bot } from "lucide-react";
+
+const WEBHOOK_URL = "http://localhost:5678/webhook-test/ff72a47b-a998-4866-993b-a7a8aa0cb5e9";
+
+export const ChatContainer = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async (content: string) => {
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content,
+      role: "user",
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: content }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: data.message || data.response || JSON.stringify(data),
+        role: "bot",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "오류가 발생했습니다",
+        description: "메시지를 전송하는 중 문제가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.",
+        role: "bot",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen max-w-4xl mx-auto bg-background">
+      {/* Header */}
+      <div className="flex items-center gap-3 p-4 border-b border-border bg-card shadow-sm">
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+          <Bot className="w-6 h-6 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">AI 챗봇</h1>
+          <p className="text-sm text-muted-foreground">
+            {isLoading ? "입력 중..." : "무엇이든 물어보세요"}
+          </p>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+              <Bot className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              대화를 시작해보세요
+            </h2>
+            <p className="text-muted-foreground max-w-sm">
+              궁금한 것을 물어보시면 AI가 답변해드립니다.
+            </p>
+          </div>
+        ) : (
+          <>
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+            <div ref={messagesEndRef} />
+          </>
+        )}
+      </div>
+
+      {/* Input */}
+      <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+    </div>
+  );
+};
