@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { ChatMessage, type Message } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
+import { ProjectForm, ProjectFormData } from "./ProjectForm";
 import { useToast } from "@/hooks/use-toast";
 import { Bot } from "lucide-react";
 
 const WEBHOOK_URL = "http://localhost:5678/webhook-test/ab1c96ee-0be0-4bdf-bcde-28f00d53be22";
 
 export const ChatContainer = () => {
+  const [projectData, setProjectData] = useState<ProjectFormData | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -19,6 +21,49 @@ export const ChatContainer = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleProjectSubmit = async (formData: ProjectFormData) => {
+    setProjectData(formData);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "project_info",
+          projectData: formData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      const botMessage: Message = {
+        id: Date.now().toString(),
+        content: data.message || data.response || "프로젝트 정보가 접수되었습니다. 무엇을 도와드릴까요?",
+        role: "bot",
+        timestamp: new Date(),
+      };
+
+      setMessages([botMessage]);
+    } catch (error) {
+      console.error("Error submitting project:", error);
+      toast({
+        title: "오류가 발생했습니다",
+        description: "프로젝트 정보 제출 중 문제가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+      setProjectData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSendMessage = async (content: string, file?: File) => {
     const userMessage: Message = {
@@ -46,6 +91,9 @@ export const ChatContainer = () => {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("message", content);
+        if (projectData) {
+          formData.append("projectData", JSON.stringify(projectData));
+        }
 
         response = await fetch(WEBHOOK_URL, {
           method: "POST",
@@ -58,7 +106,10 @@ export const ChatContainer = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: content }),
+          body: JSON.stringify({ 
+            message: content,
+            projectData: projectData,
+          }),
         });
       }
 
@@ -97,6 +148,10 @@ export const ChatContainer = () => {
     }
   };
 
+  if (!projectData) {
+    return <ProjectForm onSubmit={handleProjectSubmit} isLoading={isLoading} />;
+  }
+
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto bg-background">
       {/* Header */}
@@ -105,9 +160,9 @@ export const ChatContainer = () => {
           <Bot className="w-6 h-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-foreground">AI 챗봇</h1>
+          <h1 className="text-lg font-semibold text-foreground">{projectData.projectName}</h1>
           <p className="text-sm text-muted-foreground">
-            {isLoading ? "입력 중..." : "무엇이든 물어보세요"}
+            {isLoading ? "입력 중..." : "프로젝트 분석 중"}
           </p>
         </div>
       </div>
