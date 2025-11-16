@@ -20,25 +20,47 @@ export const ChatContainer = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, file?: File) => {
     const userMessage: Message = {
       id: Date.now().toString(),
-      content,
+      content: content || "PDF 파일 전송",
       role: "user",
       timestamp: new Date(),
+      ...(file && {
+        file: {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        },
+      }),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
     try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: content }),
-      });
+      let response;
+
+      if (file) {
+        // FormData로 파일과 메시지 전송
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("message", content);
+
+        response = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          body: formData,
+        });
+      } else {
+        // JSON으로 텍스트만 전송
+        response = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: content }),
+        });
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
