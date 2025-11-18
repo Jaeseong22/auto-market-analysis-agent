@@ -11,6 +11,7 @@ export const ChatContainer = () => {
   const [projectData, setProjectData] = useState<ProjectFormData | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [reportHtml, setReportHtml] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -42,11 +43,12 @@ export const ChatContainer = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const html = await response.text();
+      setReportHtml(html);
       
       const botMessage: Message = {
         id: Date.now().toString(),
-        content: data.message || data.response || "프로젝트 정보가 접수되었습니다. 무엇을 도와드릴까요?",
+        content: "프로젝트 분석 리포트가 생성되었습니다.",
         role: "bot",
         timestamp: new Date(),
       };
@@ -117,11 +119,12 @@ export const ChatContainer = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const html = await response.text();
+      setReportHtml(html);
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.message || data.response || JSON.stringify(data),
+        content: "응답을 받았습니다.",
         role: "bot",
         timestamp: new Date(),
       };
@@ -169,7 +172,17 @@ export const ChatContainer = () => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
+        {reportHtml ? (
+          <iframe
+            style={{
+              width: "100%",
+              height: "900px",
+              border: "1px solid #ddd",
+              background: "white"
+            }}
+            srcDoc={reportHtml}
+          />
+        ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
               <Bot className="w-8 h-8 text-primary" />
