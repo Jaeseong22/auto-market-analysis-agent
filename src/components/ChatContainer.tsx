@@ -5,7 +5,7 @@ import { ProjectForm, ProjectFormData } from "./ProjectForm";
 import { useToast } from "@/hooks/use-toast";
 import { Bot } from "lucide-react";
 
-const WEBHOOK_URL = "http://localhost:5678/webhook-test/2bddfbe3-ffed-429a-831f-0487fa998f77";
+const WEBHOOK_URL = "http://localhost:5678/webhook/2bddfbe3-ffed-429a-831f-0487fa998f77";
 
 export const ChatContainer = () => {
   const [projectData, setProjectData] = useState<ProjectFormData | null>(null);
