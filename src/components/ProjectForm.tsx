@@ -4,17 +4,25 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, Plus, Minus } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export interface ProjectFormData {
   projectName: string;
   projectPurpose: string;
   projectOverview: string;
   coreFeatures: string;
-  targetCustomer: string;
+  targetCustomer: string[];
   problemDefinition: string;
   technicalApproach: string;
-  projectPeriod: string;
-  teamSize: string;
+  projectPeriod: {
+    start: string;
+    end: string;
+  };
+  teamSize: number;
   budget: string;
   expectedOutcome: string;
   additionalRequirements?: string;
@@ -31,40 +39,77 @@ export const ProjectForm = ({ onSubmit, isLoading }: ProjectFormProps) => {
     projectPurpose: "",
     projectOverview: "",
     coreFeatures: "",
-    targetCustomer: "",
+    targetCustomer: [],
     problemDefinition: "",
     technicalApproach: "",
-    projectPeriod: "",
-    teamSize: "",
+    projectPeriod: {
+      start: "",
+      end: "",
+    },
+    teamSize: 1,
     budget: "",
     expectedOutcome: "",
     additionalRequirements: "",
   });
 
-  const handleChange = (field: keyof ProjectFormData, value: string) => {
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+
+  const ageGroups = [
+    { emoji: "🧒", label: "10s", value: "10s" },
+    { emoji: "🧑", label: "20s", value: "20s" },
+    { emoji: "👨", label: "30s", value: "30s" },
+    { emoji: "👩", label: "40s", value: "40s" },
+    { emoji: "👴", label: "50+", value: "50+" },
+  ];
+
+  const handleChange = (field: keyof ProjectFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const toggleAgeGroup = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      targetCustomer: prev.targetCustomer.includes(value)
+        ? prev.targetCustomer.filter(v => v !== value)
+        : [...prev.targetCustomer, value]
+    }));
+  };
+
+  const updateTeamSize = (delta: number) => {
+    setFormData(prev => ({
+      ...prev,
+      teamSize: Math.max(1, Math.min(50, prev.teamSize + delta))
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    const submissionData = {
+      ...formData,
+      projectPeriod: {
+        start: startDate ? format(startDate, "yyyy-MM-dd") : "",
+        end: endDate ? format(endDate, "yyyy-MM-dd") : "",
+      },
+    };
+    onSubmit(submissionData);
   };
 
   const isFormValid = () => {
-    const requiredFields: (keyof ProjectFormData)[] = [
-      "projectName",
-      "projectPurpose",
-      "projectOverview",
-      "coreFeatures",
-      "targetCustomer",
-      "problemDefinition",
-      "technicalApproach",
-      "projectPeriod",
-      "teamSize",
-      "budget",
-      "expectedOutcome",
-    ];
-    return requiredFields.every(field => formData[field].trim() !== "");
+    return (
+      formData.projectName.trim() !== "" &&
+      formData.projectPurpose.trim() !== "" &&
+      formData.projectOverview.trim() !== "" &&
+      formData.coreFeatures.trim() !== "" &&
+      formData.targetCustomer.length > 0 &&
+      formData.problemDefinition.trim() !== "" &&
+      formData.technicalApproach.trim() !== "" &&
+      startDate !== undefined &&
+      endDate !== undefined &&
+      formData.teamSize > 0 &&
+      formData.budget.trim() !== "" &&
+      formData.expectedOutcome.trim() !== ""
+    );
   };
 
   return (
@@ -126,15 +171,27 @@ export const ProjectForm = ({ onSubmit, isLoading }: ProjectFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="targetCustomer">타겟 고객 *</Label>
-              <Textarea
-                id="targetCustomer"
-                value={formData.targetCustomer}
-                onChange={(e) => handleChange("targetCustomer", e.target.value)}
-                placeholder="누구를 위한 서비스인지"
-                disabled={isLoading}
-                rows={2}
-              />
+              <Label>타겟 고객 (연령대) *</Label>
+              <div className="flex flex-wrap gap-2">
+                {ageGroups.map((group) => (
+                  <button
+                    key={group.value}
+                    type="button"
+                    onClick={() => toggleAgeGroup(group.value)}
+                    disabled={isLoading}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-3 rounded-lg border-2 transition-all",
+                      "hover:scale-105 active:scale-95",
+                      formData.targetCustomer.includes(group.value)
+                        ? "border-primary bg-primary/10 shadow-md"
+                        : "border-border bg-background hover:border-primary/50"
+                    )}
+                  >
+                    <span className="text-2xl">{group.emoji}</span>
+                    <span className="font-medium">{group.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -162,25 +219,90 @@ export const ProjectForm = ({ onSubmit, isLoading }: ProjectFormProps) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="projectPeriod">프로젝트 기간 *</Label>
-                <Input
-                  id="projectPeriod"
-                  value={formData.projectPeriod}
-                  onChange={(e) => handleChange("projectPeriod", e.target.value)}
-                  placeholder="예: 2025.01 ~ 2025.06"
-                  disabled={isLoading}
-                />
+                <Label>프로젝트 시작일 *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !startDate && "text-muted-foreground"
+                      )}
+                      disabled={isLoading}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "PPP") : "시작일 선택"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="teamSize">프로젝트 인원 *</Label>
-                <Input
-                  id="teamSize"
-                  value={formData.teamSize}
-                  onChange={(e) => handleChange("teamSize", e.target.value)}
-                  placeholder="예: 기획 1, 개발 2, 디자인 1"
-                  disabled={isLoading}
-                />
+                <Label>프로젝트 종료일 *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
+                      disabled={isLoading}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "PPP") : "종료일 선택"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      initialFocus
+                      disabled={(date) => startDate ? date < startDate : false}
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>프로젝트 인원 *</Label>
+              <div className="flex items-center gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateTeamSize(-1)}
+                  disabled={isLoading || formData.teamSize <= 1}
+                  className="h-12 w-12"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <div className="flex-1 text-center">
+                  <div className="text-4xl font-bold text-primary">{formData.teamSize}</div>
+                  <div className="text-sm text-muted-foreground">명</div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateTeamSize(1)}
+                  disabled={isLoading || formData.teamSize >= 50}
+                  className="h-12 w-12"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
