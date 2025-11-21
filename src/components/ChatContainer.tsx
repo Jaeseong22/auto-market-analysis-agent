@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ProjectForm, ProjectFormData } from "./ProjectForm";
 import { useToast } from "@/hooks/use-toast";
-import { Bot, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, FileText, Download } from "lucide-react";
 
 const WEBHOOK_URL = "https://rustlingly-unmusked-laveta.ngrok-free.dev/webhook/2bddfbe3-ffed-429a-831f-0487fa998f77";
 
@@ -46,6 +47,30 @@ export const ChatContainer = () => {
     }
   };
 
+  const handleReset = () => {
+    setProjectData(null);
+    setReportHtml("");
+  };
+
+  const handleDownloadReport = () => {
+    if (!reportHtml) return;
+    
+    const blob = new Blob([reportHtml], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${projectData?.projectName || 'report'}_분석리포트.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "다운로드 완료",
+      description: "리포트가 HTML 파일로 다운로드되었습니다.",
+    });
+  };
+
 
   if (!projectData) {
     return <ProjectForm onSubmit={handleProjectSubmit} isLoading={isLoading} />;
@@ -54,15 +79,36 @@ export const ChatContainer = () => {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border bg-card shadow-sm">
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-          <FileText className="w-6 h-6 text-primary" />
+      <div className="flex items-center justify-between p-4 border-b border-border bg-card shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+            <FileText className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-lg font-semibold text-foreground">{projectData.projectName}</h1>
+            <p className="text-sm text-muted-foreground">
+              {isLoading ? "리포트 생성 중..." : "프로젝트 분석 리포트"}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-lg font-semibold text-foreground">{projectData.projectName}</h1>
-          <p className="text-sm text-muted-foreground">
-            {isLoading ? "리포트 생성 중..." : "프로젝트 분석 리포트"}
-          </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadReport}
+            disabled={!reportHtml}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            다운로드
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleReset}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            처음으로
+          </Button>
         </div>
       </div>
 
