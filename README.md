@@ -149,6 +149,7 @@ GPT-4.1-mini가 프로젝트 목적·문제·핵심 기능·타겟층을
 
 ## 1) 저장소 클론
 git clone https://github.com/Jaeseong22/auto-market-analysis-agent.git
+
 cd auto-market-analysis-agent
 
 ## 2) 의존성 설치
