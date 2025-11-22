@@ -97,6 +97,7 @@ Notion API Upload
 
 Notion Market Analysis Page 생성
 
+전체 아키텍쳐 Workflow
 <img width="1294" height="256" alt="Image" src="https://github.com/user-attachments/assets/81a4947e-1ea9-49e0-a8b0-4c326ee62955" />
 ---
 
