@@ -172,20 +172,6 @@ npm run build
 
 npm run preview
 
-
-⸻
-
-# 프로젝트 구조
-
-auto-market-analysis-agent/
-├── src/               # React + TypeScript UI
-├── n8n-workflow/      # n8n 자동화 workflow (clear.json 포함)
-├── prompts/           # LLM prompt 구조
-├── public/
-├── package.json
-└── README.md
-
-
 ⸻
 
 # 나의 기여도
