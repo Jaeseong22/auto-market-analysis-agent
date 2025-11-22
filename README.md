@@ -17,7 +17,7 @@ AI 기반 분석 에이전트가 데이터를 수집 → 해석 → 구조화 �
 
 ---
 
-# ✨ 주요 기능 하이라이트
+# 주요 기능 하이라이트
 
 - GPT 기반 프로젝트 요약 자동 생성  
 - RAG(Qdrant) 기반 시장 데이터 분석  
@@ -64,23 +64,40 @@ AI 기반 분석 에이전트가 데이터를 수집 → 해석 → 구조화 �
 # 시스템 아키텍처
 
 User Input (Project JSON)
+
 ↓
+
 n8n Webhook
+
 ↓
+
 LLM Summary (GPT-4.1-mini)
+
 ↓
+
 RAG Search (Qdrant Vector DB)
+
 ↓
+
 Structured Parsing (GPT-4.1)
+
 ↓
+
 HTML Render (Template)
+
 ↓
+
 Markdown Conversion
+
 ↓
+
 Notion API Upload
+
 ↓
+
 Notion Market Analysis Page 생성
 
+<img width="1294" height="256" alt="Image" src="https://github.com/user-attachments/assets/81a4947e-1ea9-49e0-a8b0-4c326ee62955" />
 ---
 
 # 기술 스택
