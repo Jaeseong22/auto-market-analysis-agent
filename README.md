@@ -199,20 +199,3 @@ npm run preview
 	•	Qdrant 기반 시장 RAG 검색 시스템 구축
 	•	HTML → Markdown → Notion block 변환 시스템 구축
 	•	GitHub + Lovable 자동 동기화 환경 구성
-
-⸻
-
-# 배포 방법
-
-Lovable → Share → Publish
-
-Custom Domain 연결
-→ Project > Settings > Domains > Connect Domain
-
-⸻
-
-# 📞 Contact
-	•	GitHub: https://github.com/Jaeseong22
-	•	Email: rmsiddlwotjd@naver.com
-
-⸻
