@@ -1,29 +1,25 @@
-# 🚀 AI 기반 자동 시장성 분석 에이전트  
+# AI 기반 자동 시장성 분석 에이전트  
 **Auto Market Analysis Agent**
 
-입력된 프로젝트 데이터만으로  
-**시장 분석 · 경쟁사 분석 · ROI 분석**을 자동 생성하고 **Notion 페이지까지 자동 업로드**하는  
-AI 기반 자동 시장성 분석 시스템입니다.
-
-본 프로젝트는 **n8n + OpenAI GPT-4.1 + Qdrant + Notion API**를 결합하여  
-서비스 아이디어 입력 → 자동 분석 → 문서 생성까지 모든 과정을 자동화합니다.
+AI 기반 자동 시장성 분석 에이전트는 open-source repository로써 사용자가 입력한 프로젝트 폼 데이터를 기반으로 
+관련된 시장의 시장성 분석을 RAG 및 LLM System Prompt를 바탕으로 분석하여 사용자의 노션에 정리 및 보고서(HTML) 다운받을 수 있는
+러프한 시장 분석 과정을 완전히 자동화하여 사용자가 프로젝트를 시작하기 전에 들어갈 시장 분석의 도움을 주기 위해 만들어졌습니다.
 
 ---
 
 # ✨ 주요 기능 하이라이트
 
-- 🧠 GPT 기반 프로젝트 요약 자동 생성  
-- 📊 RAG(Qdrant) 기반 시장 데이터 분석  
-- 📝 JSON 스키마 기반 구조화 LLM 파서  
-- 🌐 HTML → Markdown → Notion 자동 페이지 생성  
-- ⚙️ n8n 전체 파이프라인 자동화 구성  
-- 🔗 Lovable ↔ GitHub 자동 동기화  
+- GPT 기반 프로젝트 요약 자동 생성  
+- RAG(Qdrant) 기반 시장 데이터 분석  
+- JSON 스키마 기반 구조화 LLM 파서  
+- HTML → Markdown → Notion 자동 페이지 생성  
+- n8n 전체 파이프라인 자동화 구성  
 
 ---
 
-# 📌 왜 이런 기술 스택을 선택했는가?
+#  왜 이런 기술 스택을 선택했는가?
 
-## 🔸 왜 Qdrant(VectorDB)를 사용했는가?
+##  왜 Qdrant(VectorDB)를 사용했는가?
 
 | 필요한 기능 | Qdrant가 딱 맞았던 이유 |
 |------------|--------------------------|
@@ -31,15 +27,16 @@ AI 기반 자동 시장성 분석 시스템입니다.
 | Embedding 기반 RAG 구축 | Dense vector 검색에 최적화 |
 | 필터링 + payload 저장 | 메타데이터 결합 편리 |
 | 호스팅/온프레미스 모두 지원 | 개발 및 배포 환경 유연 |
+| 초기 비용 절약 | 오픈 소스로서 값싼 비용 |
 | n8n + LangChain과의 궁합 | 플러그인 연동 자연스러움 |
 
 **결론:**  
 시장 분석 자동화에서는 *“유사 산업 데이터, 경쟁사 정보, 산업 트렌드”* 같은 비정형 정보를 벡터 검색해야 함 → **RAG는 필수**.  
-그중 **Qdrant는 속도·안정성·유연성 모두 잡혀 있어 최적의 선택**이었음.
+그중 **Qdrant는 속도·안정성·유연성·저비용 모두 잡혀 있어 최적의 선택**이었습니다.
 
 ---
 
-## 🔸 왜 OpenAI GPT-4.1 / 4.1-mini를 사용했는가?
+##  왜 OpenAI GPT-4.1 / 4.1-mini를 사용했는가?
 
 | 요구 사항 | GPT 모델을 선택한 이유 |
 |-----------|-------------------------|
@@ -54,7 +51,7 @@ AI 기반 자동 시장성 분석 시스템입니다.
 
 ---
 
-# 🧱 시스템 아키텍처
+# 시스템 아키텍처
 
 User Input (Project JSON)
 ↓
@@ -76,10 +73,7 @@ Notion Market Analysis Page 생성
 
 ---
 
-# 🌐 기술 스택
-
-### • Frontend / Agent UI  
-Vite, React, TypeScript, shadcn-ui, Tailwind CSS  
+# 기술 스택
 
 ### • AI / LLM  
 OpenAI GPT-4.1, GPT-4.1-mini  
@@ -99,7 +93,7 @@ Lovable Publish
 
 ---
 
-# 🔍 주요 기능
+# 주요 기능
 
 ## 1) 서비스 입력 자동 요약  
 GPT-4.1-mini가 프로젝트 목적·문제·핵심 기능·타겟층을  
@@ -141,7 +135,7 @@ GPT-4.1-mini가 프로젝트 목적·문제·핵심 기능·타겟층을
 
 ---
 
-# 🛠 설치 및 실행 방법
+# 설치 및 실행 방법
 
 ## 1) 저장소 클론
 git clone https://github.com/Jaeseong22/auto-market-analysis-agent.git
@@ -155,12 +149,11 @@ npm install
 
 npm run dev
 
-접속:
-👉 http://localhost:8080
+접속: http://localhost:8080
 
 ⸻
 
-# 📦 빌드
+# 빌드
 
 npm run build
 
@@ -171,7 +164,7 @@ npm run preview
 
 ⸻
 
-# 📁 프로젝트 구조
+# 프로젝트 구조
 
 auto-market-analysis-agent/
 ├── src/               # React + TypeScript UI
@@ -184,17 +177,17 @@ auto-market-analysis-agent/
 
 ⸻
 
-# 🧠 나의 기여도
+# 나의 기여도
 	•	전체 시스템 아키텍처 설계
 	•	n8n 기반 자동화 파이프라인 구축
-	•	GPT JSON 구조화 파서 직접 개발 (파싱 실패 0%)
+	•	GPT JSON 구조화 파서 직접 개발
 	•	Qdrant 기반 시장 RAG 검색 시스템 구축
 	•	HTML → Markdown → Notion block 변환 시스템 구축
 	•	GitHub + Lovable 자동 동기화 환경 구성
 
 ⸻
 
-# 🚀 배포 방법
+# 배포 방법
 
 Lovable → Share → Publish
 
