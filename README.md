@@ -169,6 +169,9 @@ GPT-4.1-mini가 프로젝트 목적·문제·핵심 기능·타겟층을
 
 ---
 
+## 6) 실행 영상
+https://github.com/user-attachments/assets/3dfce4ef-6aea-454a-8373-22fdd49d8482
+
 # 나의 기여도
 	•	전체 시스템 아키텍처 설계
 	•	n8n 기반 자동화 파이프라인 구축
